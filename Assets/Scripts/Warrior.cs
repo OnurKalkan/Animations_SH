@@ -9,7 +9,7 @@ public class Warrior : MonoBehaviour
     public int runSpeed = 10, jumpForce = 100;
     public Rigidbody2D rb;
     public GameObject sampleFireBall;
-    public bool playerOne, playerTwo, onBlock;
+    public bool playerOne, playerTwo, onBlock, onGround, onLeft, onRight;
     public int health = 100;
     public Image healthBar;
 
@@ -29,6 +29,15 @@ public class Warrior : MonoBehaviour
         }            
     }
 
+    void AnimationReset(string animName)
+    {
+        animator.SetBool("Run", false);
+        animator.SetBool("Idle", false);
+        animator.SetBool("Crouch", false);
+        animator.SetBool("Block", false);
+        animator.SetBool(animName, true);
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -38,14 +47,11 @@ public class Warrior : MonoBehaviour
         {
             if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
             {
-                animator.SetBool("Run", true);
-                animator.SetBool("Idle", false);
-                animator.SetBool("Crouch", false);
-                animator.SetBool("Block", false);
+                AnimationReset("Run");
                 NormalCollider();
                 onBlock = false;
             }
-            if (Input.GetKeyDown(KeyCode.W))
+            if (Input.GetKeyDown(KeyCode.W) && onGround == true)
             {
                 animator.SetTrigger("Jump");
                 rb.AddForce(Vector2.up * jumpForce);
@@ -73,6 +79,7 @@ public class Warrior : MonoBehaviour
             {
                 animator.SetTrigger("Attack");
                 onBlock = false;
+                Invoke(nameof(Attack), 0.5f);
             }
             if (Input.GetKeyDown(KeyCode.S))
             {
@@ -109,10 +116,6 @@ public class Warrior : MonoBehaviour
             {
                 transform.Translate(Vector3.right * Time.deltaTime * runSpeed);
             }
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                Invoke(nameof(Attack), 0.5f);
-            }
         }
         #endregion
         #region PlayerTwoController
@@ -127,7 +130,7 @@ public class Warrior : MonoBehaviour
                 NormalCollider();
                 onBlock = false;
             }
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Input.GetKeyDown(KeyCode.UpArrow) && onGround)
             {
                 animator.SetTrigger("Jump");
                 rb.AddForce(Vector2.up * jumpForce);
@@ -221,5 +224,17 @@ public class Warrior : MonoBehaviour
     {
         GetComponent<BoxCollider2D>().size = new Vector2(0.237f, 0.36f);
         GetComponent<BoxCollider2D>().offset = new Vector2(-0.07f, -0.04f);
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+            onGround = true;
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+            onGround = false;
     }
 }

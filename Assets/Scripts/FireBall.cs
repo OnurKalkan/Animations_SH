@@ -11,9 +11,19 @@ public class FireBall : MonoBehaviour
     void Update()
     {
         if(enemyTag == "PlayerOne")
-            transform.Translate(Vector3.left * Time.deltaTime * fireSpeed);
+        {
+            if(GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Warrior>().onLeft)
+                transform.Translate(Vector3.left * Time.deltaTime * fireSpeed);
+            else if (GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Warrior>().onRight)
+                transform.Translate(Vector3.right * Time.deltaTime * fireSpeed);
+        }            
         else if(enemyTag == "PlayerTwo")
-            transform.Translate(Vector3.right * Time.deltaTime * fireSpeed);
+        {
+            if (GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Warrior>().onLeft)
+                transform.Translate(Vector3.left * Time.deltaTime * fireSpeed);
+            else if (GameObject.FindGameObjectWithTag(enemyTag).GetComponent<Warrior>().onRight)
+                transform.Translate(Vector3.right * Time.deltaTime * fireSpeed);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -38,6 +48,10 @@ public class FireBall : MonoBehaviour
                 }                
             }
             
+        }
+        if (collision.CompareTag("Wall"))
+        {
+            Destroy(this.gameObject);
         }
     }
 }
